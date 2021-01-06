@@ -50,15 +50,22 @@ config :nerves_ssh,
 # Configure the network using vintage_net
 # See https://github.com/nerves-networking/vintage_net for more information
 config :vintage_net,
-  regulatory_domain: "US",
   config: [
-    {"usb0", %{type: VintageNetDirect}},
-    {"eth0",
+    {"wlan0",
      %{
-       type: VintageNetEthernet,
-       ipv4: %{method: :dhcp}
-     }},
-    {"wlan0", %{type: VintageNetWiFi}}
+       ipv4: %{method: :dhcp},
+       type: VintageNetWiFi,
+       vintage_net_wifi: %{
+         networks: [
+           %{
+             key_mgmt: :wpa_psk,
+             mode: :infrastructure,
+             psk: System.get_env("WIFI_PSK") || (raise "Environment variable WIFI_PSK is missing."),
+             ssid: System.get_env("WIFI_SSID") || (raise "Environment variable WIFI_SSID is missing.")
+           }
+         ]
+       }
+     }}
   ]
 
 config :mdns_lite,
@@ -68,7 +75,7 @@ config :mdns_lite,
   # "nerves.local" for convenience. If more than one Nerves device is on the
   # network, delete "nerves" from the list.
 
-  host: [:hostname, "nerves"],
+  host: [:hostname, "nightclock"],
   ttl: 120,
 
   # Advertise the following services over mDNS.
@@ -92,6 +99,11 @@ config :mdns_lite,
       port: 4369
     }
   ]
+
+config :power_control,
+  cpu_governor: :powersave,
+  disable_leds: false,
+  disable_hdmi: true
 
 # Import target specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

@@ -30,6 +30,10 @@ defmodule LedNightClock.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:circuits_gpio, "~> 0.4"},
+      {:power_control, "~> 0.2.0"},
+      {:tzdata, "~> 1.1"},
+
       # Dependencies for all targets
       {:nerves, "~> 1.7.0", runtime: false},
       {:shoehorn, "~> 0.7.0"},

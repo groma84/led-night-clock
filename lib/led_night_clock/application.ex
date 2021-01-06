@@ -14,7 +14,9 @@ defmodule LedNightClock.Application do
       [
         # Children for all targets
         # Starts a worker by calling: LedNightClock.Worker.start_link(arg)
-        # {LedNightClock.Worker, arg},
+        LedOnOff,
+        TranslateTimeToOutput,
+        Clock
       ] ++ children(target())
 
     Supervisor.start_link(children, opts)
