@@ -15,6 +15,10 @@ defmodule TranslateTimeToOutput do
     GenServer.call(@me, {:time, hour})
   end
 
+  def quarter(quarter) do
+    GenServer.call(@me, {:quarter, quarter})
+  end
+
   # SERVER
   @impl true
   def init(_) do
@@ -23,8 +27,6 @@ defmodule TranslateTimeToOutput do
 
   @impl true
   def handle_call({:time, hour}, _from, state) do
-    # bits = Integer.digits(hour, 2)
-
     LedOnOff.all_off()
 
     if (hour &&& 1) == 1 do
@@ -41,6 +43,29 @@ defmodule TranslateTimeToOutput do
 
     if (hour &&& 8) == 8 do
       LedOnOff.switch_on(:four)
+    end
+
+    {:reply, %{}, state}
+  end
+
+  @impl true
+  def handle_call({:quarter, quarter}, _from, state) do
+    if quarter == 0 do
+      LedOnOff.switch_off(:five)
+      LedOnOff.switch_off(:six)
+      LedOnOff.switch_off(:seven)
+    end
+
+    if quarter >= 1 do
+      LedOnOff.switch_on(:five)
+    end
+
+    if quarter >= 2 do
+      LedOnOff.switch_on(:six)
+    end
+
+    if quarter >= 3 do
+      LedOnOff.switch_on(:seven)
     end
 
     {:reply, %{}, state}

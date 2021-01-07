@@ -10,6 +10,9 @@ defmodule LedOnOff do
   @led2_control_output_pin Application.get_env(:led_night_clock, :led2_control_output_pin, 27)
   @led3_control_output_pin Application.get_env(:led_night_clock, :led3_control_output_pin, 23)
   @led4_control_output_pin Application.get_env(:led_night_clock, :led4_control_output_pin, 24)
+  @led5_control_output_pin Application.get_env(:led_night_clock, :led5_control_output_pin, 26)
+  @led6_control_output_pin Application.get_env(:led_night_clock, :led6_control_output_pin, 6)
+  @led7_control_output_pin Application.get_env(:led_night_clock, :led7_control_output_pin, 5)
 
   # CLIENT
   def start_link(_) do
@@ -21,6 +24,9 @@ defmodule LedOnOff do
     switch_off(:two)
     switch_off(:three)
     switch_off(:four)
+    switch_off(:five)
+    switch_off(:six)
+    switch_off(:seven)
   end
 
   def switch_on(led) do
@@ -38,6 +44,9 @@ defmodule LedOnOff do
     {:ok, output_gpio_2} = GPIO.open(@led2_control_output_pin, :output)
     {:ok, output_gpio_3} = GPIO.open(@led3_control_output_pin, :output)
     {:ok, output_gpio_4} = GPIO.open(@led4_control_output_pin, :output)
+    {:ok, output_gpio_5} = GPIO.open(@led5_control_output_pin, :output)
+    {:ok, output_gpio_6} = GPIO.open(@led6_control_output_pin, :output)
+    {:ok, output_gpio_7} = GPIO.open(@led7_control_output_pin, :output)
 
     Process.send_after(self(), {:init_sequence, :start}, 0)
 
@@ -47,10 +56,16 @@ defmodule LedOnOff do
        pin2: output_gpio_2,
        pin3: output_gpio_3,
        pin4: output_gpio_4,
+       pin5: output_gpio_5,
+       pin6: output_gpio_6,
+       pin7: output_gpio_7,
        led1_on: false,
        led2_on: false,
        led3_on: false,
-       led4_on: false
+       led4_on: false,
+       led5_on: false,
+       led6_on: false,
+       led7_on: false
      }}
   end
 
@@ -81,10 +96,25 @@ defmodule LedOnOff do
             [toggle_led_off(:three, state), :four_after_four]
 
           :four_after_four ->
-            [toggle_led_off(:four, state), :end]
+            [toggle_led_off(:four, state), :second_row_first]
+
+          :second_row_first ->
+            [toggle_led_on(:five, state), :second_row_second]
+
+          :second_row_second ->
+            [toggle_led_on(:six, state), :second_row_third]
+
+          :second_row_third ->
+            [toggle_led_on(:seven, state), :second_row_end]
+
+          :second_row_end ->
+            s1 = toggle_led_off(:five, state)
+            s2 = toggle_led_off(:six, s1)
+            s3 = toggle_led_off(:seven, s2)
+            [s3, :end]
         end
 
-      Process.send_after(self(), {:init_sequence, next_step}, 250)
+      Process.send_after(self(), {:init_sequence, next_step}, 333)
 
       {:noreply, new_state}
     else
@@ -134,6 +164,9 @@ defmodule LedOnOff do
       :two -> state.pin2
       :three -> state.pin3
       :four -> state.pin4
+      :five -> state.pin5
+      :six -> state.pin6
+      :seven -> state.pin7
     end
   end
 
@@ -143,6 +176,9 @@ defmodule LedOnOff do
       :two -> :led2_on
       :three -> :led3_on
       :four -> :led4_on
+      :five -> :led5_on
+      :six -> :led6_on
+      :seven -> :led7_on
     end
   end
 end
