@@ -50,7 +50,9 @@ config :nerves_ssh,
 # Configure the network using vintage_net
 # See https://github.com/nerves-networking/vintage_net for more information
 config :vintage_net,
+  regulatory_domain: "DE",
   config: [
+    {"usb0", %{type: VintageNetDirect}},
     {"wlan0",
      %{
        ipv4: %{method: :dhcp},
@@ -102,8 +104,8 @@ config :mdns_lite,
 
 config :power_control,
   cpu_governor: :powersave,
-  disable_leds: false,
-  disable_hdmi: true
+  disable_leds: true,
+  disable_hdmi: false
 
 # Import target specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
