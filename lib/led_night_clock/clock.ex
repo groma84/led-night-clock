@@ -4,6 +4,7 @@ defmodule Clock do
   require Logger
 
   @me __MODULE__
+  @update_interval_ms 60_000
 
   # CLIENT
   def start_link(_) do
@@ -13,7 +14,7 @@ defmodule Clock do
   # SERVER
   @impl true
   def init(_) do
-    Process.send_after(self(), :get_time, 20_000)
+    queue_get_time()
 
     {:ok, %{last_hour: nil, last_quarter: nil}}
   end
@@ -33,10 +34,12 @@ defmodule Clock do
       TranslateTimeToOutput.quarter(quarter)
     end
 
-    Process.send_after(self(), :get_time, 60_000)
+    queue_get_time()
 
     {:noreply, %{state | last_hour: hour, last_quarter: quarter}}
   end
+
+  defp queue_get_time(), do: Process.send_after(self(), :get_time, @update_interval_ms)
 
   defp determine_hour(now) do
     if now.year < 2021 do

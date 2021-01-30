@@ -8,7 +8,15 @@ import Config
 # Enable the Nerves integration with Mix
 Application.start(:nerves_bootstrap)
 
-config :led_night_clock, target: Mix.target()
+config :led_night_clock,
+  target: Mix.target(),
+  led1_control_output_pin: 5,
+  led2_control_output_pin: 6,
+  led3_control_output_pin: 26,
+  led4_control_output_pin: 16,
+  led5_control_output_pin: 17,
+  led6_control_output_pin: 27,
+  led7_control_output_pin: 22
 
 # Customize non-Elixir parts of the firmware. See
 # https://hexdocs.pm/nerves/advanced-configuration.html for details.
